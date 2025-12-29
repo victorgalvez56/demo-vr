@@ -24,16 +24,16 @@ interface GameState {
 
 // ============== DIÁLOGOS ==============
 const introDialog: DialogLine[] = [
-  { speaker: 'narration', text: 'Un asesor financiero entra a tu oficina...', delay: 2000 },
-  { speaker: 'advisor', text: '¡Hola! Soy Carlos, tu asesor financiero.', delay: 3000 },
-  { speaker: 'advisor', text: 'Me dijeron que acabas de recibir tu primer sueldo. ¡Felicidades!', delay: 3500 },
-  { speaker: 'advisor', text: 'Son $1,000... una cantidad importante.', delay: 3000 },
-  { speaker: 'advisor', text: 'La forma en que manejes este dinero marcará tu futuro.', delay: 3500 },
+  { speaker: 'narration', text: 'Un asesor del BCP se acerca a atenderte...', delay: 2000 },
+  { speaker: 'advisor', text: '¡Hola! Soy Carlos, asesor financiero del BCP.', delay: 3000 },
+  { speaker: 'advisor', text: 'Me comentaron que acabas de recibir tu primer sueldo. ¡Felicidades!', delay: 3500 },
+  { speaker: 'advisor', text: 'Son S/1,000 soles... una cantidad importante.', delay: 3000 },
+  { speaker: 'advisor', text: 'En el BCP queremos ayudarte a hacer crecer tu dinero.', delay: 3500 },
   { speaker: 'advisor', text: 'Déjame preguntarte algo...', delay: 2500 },
 ]
 
 const choiceDialog: DialogLine[] = [
-  { speaker: 'advisor', text: '¿Qué planeas hacer con ese dinero?', delay: 2000 },
+  { speaker: 'advisor', text: '¿Qué planeas hacer con tu primer sueldo?', delay: 2000 },
 ]
 
 const getResponseDialog = (choice: string): DialogLine[] => {
@@ -41,24 +41,24 @@ const getResponseDialog = (choice: string): DialogLine[] => {
     case 'gastar':
       return [
         { speaker: 'advisor', text: 'Hmm... entiendo la tentación.', delay: 2500 },
-        { speaker: 'advisor', text: 'Pero déjame contarte algo importante.', delay: 3000 },
+        { speaker: 'advisor', text: 'Pero déjame darte un consejo del BCP.', delay: 3000 },
         { speaker: 'advisor', text: 'Sin ahorros, cualquier emergencia se convierte en crisis.', delay: 3500 },
-        { speaker: 'advisor', text: 'Un auto descompuesto, una emergencia médica...', delay: 3000 },
-        { speaker: 'advisor', text: 'Te verías obligado a endeudarte.', delay: 2500 },
+        { speaker: 'advisor', text: 'Una reparación del carro, una emergencia de salud...', delay: 3000 },
+        { speaker: 'advisor', text: 'Te verías obligado a pedir préstamos con intereses altos.', delay: 2500 },
       ]
     case 'equilibrio':
       return [
-        { speaker: 'advisor', text: '¡Esa es una decisión inteligente!', delay: 2500 },
-        { speaker: 'advisor', text: 'La regla 50/50 es un excelente comienzo.', delay: 3000 },
-        { speaker: 'advisor', text: 'Disfrutas el presente sin sacrificar el futuro.', delay: 3000 },
-        { speaker: 'advisor', text: 'Muchos expertos recomiendan exactamente esto.', delay: 3000 },
+        { speaker: 'advisor', text: '¡Excelente decisión!', delay: 2500 },
+        { speaker: 'advisor', text: 'La regla 50/50 es lo que recomendamos en el BCP.', delay: 3000 },
+        { speaker: 'advisor', text: 'Disfrutas el presente sin sacrificar tu futuro.', delay: 3000 },
+        { speaker: 'advisor', text: 'Con nuestra Cuenta de Ahorros ganarás 5.5% TEA.', delay: 3000 },
       ]
     case 'ahorrar':
       return [
-        { speaker: 'advisor', text: '¡Impresionante disciplina!', delay: 2500 },
-        { speaker: 'advisor', text: 'Ahorrar el 80% es ambicioso, pero muy inteligente.', delay: 3500 },
-        { speaker: 'advisor', text: 'Con el interés compuesto, ese dinero crecerá exponencialmente.', delay: 4000 },
-        { speaker: 'advisor', text: 'En 10 años, podrías tener el doble o más.', delay: 3000 },
+        { speaker: 'advisor', text: '¡Impresionante disciplina financiera!', delay: 2500 },
+        { speaker: 'advisor', text: 'Ahorrar el 80% es lo que hacen los más exitosos.', delay: 3500 },
+        { speaker: 'advisor', text: 'Con el interés compuesto del BCP, tu dinero crecerá cada mes.', delay: 4000 },
+        { speaker: 'advisor', text: 'En 10 años, podrías duplicar tu capital.', delay: 3000 },
       ]
     default:
       return []
@@ -66,12 +66,12 @@ const getResponseDialog = (choice: string): DialogLine[] => {
 }
 
 const lessonDialog: DialogLine[] = [
-  { speaker: 'advisor', text: 'Te dejo con esta lección...', delay: 2500 },
+  { speaker: 'advisor', text: 'Te dejo con el consejo más importante del BCP...', delay: 2500 },
   { speaker: 'advisor', text: '"Págate a ti mismo primero."', delay: 3000 },
   { speaker: 'advisor', text: 'Antes de pagar cuentas o comprar cosas...', delay: 3000 },
-  { speaker: 'advisor', text: 'Aparta un porcentaje para tu futuro.', delay: 3000 },
+  { speaker: 'advisor', text: 'Aparta un porcentaje para tu Cuenta de Ahorros BCP.', delay: 3000 },
   { speaker: 'advisor', text: 'Tu yo del futuro te lo agradecerá.', delay: 3000 },
-  { speaker: 'advisor', text: 'Fue un placer asesorarte. ¡Hasta pronto!', delay: 3500 },
+  { speaker: 'advisor', text: '¡Gracias por confiar en el BCP! Hasta pronto.', delay: 3500 },
 ]
 
 // ============== COMPONENTE: ASESOR FINANCIERO ==============
@@ -334,98 +334,278 @@ function ChoiceButton({
   )
 }
 
-// ============== COMPONENTE: OFICINA ==============
-function Office() {
+// ============== COMPONENTE: BANCO BCP ==============
+function Bank() {
+  // Colores oficiales BCP
+  const BCP_BLUE = '#002A8D'
+  const BCP_ORANGE = '#FF7800'
+
   return (
     <group>
-      {/* Suelo */}
+      {/* ===== ESTRUCTURA PRINCIPAL ===== */}
+
+      {/* Piso de mármol claro */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
-        <planeGeometry args={[10, 10]} />
-        <meshStandardMaterial color="#4a4a4a" />
+        <planeGeometry args={[16, 12]} />
+        <meshStandardMaterial color="#f5f5f5" metalness={0.2} roughness={0.3} />
       </mesh>
 
-      {/* Paredes */}
-      <mesh position={[0, 2, -4]}>
-        <planeGeometry args={[10, 4]} />
-        <meshStandardMaterial color="#5d4e37" />
-      </mesh>
-      <mesh position={[-5, 2, 0]} rotation={[0, Math.PI / 2, 0]}>
-        <planeGeometry args={[10, 4]} />
-        <meshStandardMaterial color="#5d4e37" />
-      </mesh>
-      <mesh position={[5, 2, 0]} rotation={[0, -Math.PI / 2, 0]}>
-        <planeGeometry args={[10, 4]} />
-        <meshStandardMaterial color="#5d4e37" />
+      {/* Patrón del piso */}
+      {[-6, -3, 0, 3, 6].map((x, i) => (
+        <mesh key={`floor-line-${i}`} rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.01, 0]}>
+          <planeGeometry args={[0.03, 12]} />
+          <meshStandardMaterial color="#e0e0e0" />
+        </mesh>
+      ))}
+
+      {/* Pared trasera principal - Azul BCP */}
+      <mesh position={[0, 3, -5.5]}>
+        <planeGeometry args={[16, 6]} />
+        <meshStandardMaterial color={BCP_BLUE} />
       </mesh>
 
-      {/* Ventana */}
-      <mesh position={[4.95, 2, -1]}>
-        <planeGeometry args={[0.1, 2]} />
-        <meshStandardMaterial color="#87CEEB" emissive="#87CEEB" emissiveIntensity={0.5} />
+      {/* Franja naranja BCP decorativa */}
+      <mesh position={[0, 1.2, -5.48]}>
+        <planeGeometry args={[16, 0.2]} />
+        <meshStandardMaterial color={BCP_ORANGE} />
       </mesh>
 
-      {/* Escritorio del usuario */}
-      <Box args={[2, 0.05, 1]} position={[0, 0.75, 0.5]} castShadow>
-        <meshStandardMaterial color="#5d4037" />
-      </Box>
-      {/* Patas del escritorio */}
-      <Box args={[0.05, 0.75, 0.05]} position={[-0.9, 0.375, 0.1]}>
-        <meshStandardMaterial color="#4e342e" />
-      </Box>
-      <Box args={[0.05, 0.75, 0.05]} position={[0.9, 0.375, 0.1]}>
-        <meshStandardMaterial color="#4e342e" />
-      </Box>
-      <Box args={[0.05, 0.75, 0.05]} position={[-0.9, 0.375, 0.9]}>
-        <meshStandardMaterial color="#4e342e" />
-      </Box>
-      <Box args={[0.05, 0.75, 0.05]} position={[0.9, 0.375, 0.9]}>
-        <meshStandardMaterial color="#4e342e" />
-      </Box>
+      {/* Paredes laterales */}
+      <mesh position={[-8, 3, 0]} rotation={[0, Math.PI / 2, 0]}>
+        <planeGeometry args={[12, 6]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
+      <mesh position={[8, 3, 0]} rotation={[0, -Math.PI / 2, 0]}>
+        <planeGeometry args={[12, 6]} />
+        <meshStandardMaterial color="#ffffff" />
+      </mesh>
 
-      {/* Laptop en el escritorio */}
-      <group position={[0, 0.8, 0.3]}>
-        <Box args={[0.4, 0.02, 0.25]}>
+      {/* Techo */}
+      <mesh position={[0, 6, 0]} rotation={[Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[16, 12]} />
+        <meshStandardMaterial color="#fafafa" />
+      </mesh>
+
+      {/* ===== LOGO BCP ===== */}
+      <group position={[0, 4.2, -5.4]}>
+        {/* Símbolo > naranja izquierdo */}
+        <Text position={[-1.3, 0, 0.02]} fontSize={0.6} color={BCP_ORANGE}>
+          {'›'}
+        </Text>
+        {/* Texto BCP */}
+        <Text position={[0, 0, 0.02]} fontSize={0.5} color="#ffffff" fontWeight="bold">
+          BCP
+        </Text>
+        {/* Símbolo > naranja derecho (más pequeño) */}
+        <Text position={[1.1, -0.15, 0.02]} fontSize={0.35} color={BCP_ORANGE}>
+          {'›'}
+        </Text>
+        {/* Nombre completo debajo */}
+        <Text position={[0, -0.8, 0.02]} fontSize={0.12} color="#ffffff">
+          Banco de Crédito del Perú
+        </Text>
+      </group>
+
+      {/* ===== MOSTRADOR DE ATENCIÓN BCP ===== */}
+      <group position={[0, 0, -2.5]}>
+        {/* Mostrador base */}
+        <Box args={[4.5, 1.1, 0.9]} position={[0, 0.55, 0]}>
+          <meshStandardMaterial color="#ffffff" />
+        </Box>
+        {/* Superficie del mostrador */}
+        <Box args={[4.6, 0.05, 1]} position={[0, 1.12, 0]}>
+          <meshStandardMaterial color="#e0e0e0" metalness={0.3} roughness={0.4} />
+        </Box>
+        {/* Frente azul BCP */}
+        <Box args={[4.3, 0.85, 0.05]} position={[0, 0.5, 0.43]}>
+          <meshStandardMaterial color={BCP_BLUE} />
+        </Box>
+        {/* Línea naranja BCP */}
+        <Box args={[4.3, 0.08, 0.06]} position={[0, 0.98, 0.43]}>
+          <meshStandardMaterial color={BCP_ORANGE} />
+        </Box>
+        {/* Logo pequeño en mostrador */}
+        <Text position={[0, 0.5, 0.47]} fontSize={0.15} color="#ffffff">
+          BCP
+        </Text>
+      </group>
+
+      {/* ===== MONITOR EN MOSTRADOR ===== */}
+      <group position={[1.5, 1.15, -2.5]}>
+        <Cylinder args={[0.12, 0.15, 0.04, 16]} position={[0, 0, 0]}>
+          <meshStandardMaterial color="#333333" />
+        </Cylinder>
+        <Box args={[0.04, 0.25, 0.04]} position={[0, 0.12, 0]}>
           <meshStandardMaterial color="#333333" />
         </Box>
-        <Box args={[0.38, 0.25, 0.01]} position={[0, 0.13, -0.12]} rotation={[-0.2, 0, 0]}>
+        <Box args={[0.45, 0.32, 0.02]} position={[0, 0.32, 0]}>
           <meshStandardMaterial color="#1a1a1a" />
         </Box>
-        <Box args={[0.35, 0.22, 0.005]} position={[0, 0.13, -0.115]} rotation={[-0.2, 0, 0]}>
-          <meshStandardMaterial color="#4fc3f7" emissive="#4fc3f7" emissiveIntensity={0.3} />
+        <Box args={[0.42, 0.28, 0.01]} position={[0, 0.32, 0.015]}>
+          <meshStandardMaterial color={BCP_BLUE} emissive={BCP_BLUE} emissiveIntensity={0.15} />
         </Box>
       </group>
 
-      {/* Silla del asesor */}
-      <group position={[-1, 0, -1.5]}>
-        <Box args={[0.5, 0.05, 0.5]} position={[0, 0.45, 0]}>
-          <meshStandardMaterial color="#1a237e" />
+      {/* ===== SILLAS DE ESPERA BCP ===== */}
+      {[-2.5, -1.2, 1.2, 2.5].map((x, i) => (
+        <group key={`chair-${i}`} position={[x, 0, 2.5]}>
+          <Box args={[0.5, 0.08, 0.5]} position={[0, 0.45, 0]}>
+            <meshStandardMaterial color={BCP_BLUE} />
+          </Box>
+          <Box args={[0.5, 0.5, 0.08]} position={[0, 0.75, -0.21]}>
+            <meshStandardMaterial color={BCP_BLUE} />
+          </Box>
+          {[[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]].map(([px, pz], j) => (
+            <Cylinder key={j} args={[0.02, 0.02, 0.45, 8]} position={[px, 0.225, pz]}>
+              <meshStandardMaterial color="#c0c0c0" metalness={0.9} roughness={0.1} />
+            </Cylinder>
+          ))}
+        </group>
+      ))}
+
+      {/* ===== PLANTAS DECORATIVAS ===== */}
+      {[[-7, -4], [7, -4]].map(([x, z], i) => (
+        <group key={`plant-${i}`} position={[x, 0, z]}>
+          <Cylinder args={[0.3, 0.25, 0.6, 16]} position={[0, 0.3, 0]}>
+            <meshStandardMaterial color="#f0f0f0" />
+          </Cylinder>
+          <mesh position={[0, 1, 0]}>
+            <sphereGeometry args={[0.5, 16, 16]} />
+            <meshStandardMaterial color="#2e7d32" />
+          </mesh>
+          <mesh position={[0.25, 1.2, 0.15]}>
+            <sphereGeometry args={[0.25, 12, 12]} />
+            <meshStandardMaterial color="#388e3c" />
+          </mesh>
+        </group>
+      ))}
+
+      {/* ===== VENTANALES ===== */}
+      {[-3, 3].map((z, i) => (
+        <group key={`window-${i}`} position={[7.95, 3, z]}>
+          <Box args={[0.1, 3.5, 2.8]}>
+            <meshStandardMaterial color="#e0e0e0" />
+          </Box>
+          <Box args={[0.05, 3.2, 2.5]} position={[0.03, 0, 0]}>
+            <meshStandardMaterial
+              color="#a8d5ff"
+              transparent
+              opacity={0.5}
+              emissive="#87CEEB"
+              emissiveIntensity={0.2}
+            />
+          </Box>
+          <pointLight position={[0.5, 0, 0]} intensity={0.4} color="#fff8e1" />
+        </group>
+      ))}
+
+      {/* ===== PANTALLA DIGITAL BCP ===== */}
+      <group position={[-5.5, 3.2, -5.35]}>
+        <Box args={[2.2, 1.4, 0.1]}>
+          <meshStandardMaterial color="#1a1a1a" />
         </Box>
-        <Box args={[0.5, 0.6, 0.05]} position={[0, 0.75, -0.22]}>
-          <meshStandardMaterial color="#1a237e" />
+        <Box args={[2, 1.2, 0.05]} position={[0, 0, 0.06]}>
+          <meshStandardMaterial color={BCP_BLUE} emissive={BCP_BLUE} emissiveIntensity={0.2} />
+        </Box>
+        <Text position={[0, 0.35, 0.09]} fontSize={0.1} color={BCP_ORANGE}>
+          Cuenta de Ahorros
+        </Text>
+        <Text position={[0, 0.05, 0.09]} fontSize={0.14} color="#ffffff">
+          5.5% TEA
+        </Text>
+        <Text position={[0, -0.2, 0.09]} fontSize={0.06} color="#aaaaaa">
+          *Sujeto a condiciones
+        </Text>
+        <Text position={[0, -0.45, 0.09]} fontSize={0.05} color="#ffffff">
+          viabcp.com
+        </Text>
+      </group>
+
+      {/* ===== PANTALLA DE TURNOS ===== */}
+      <group position={[5.5, 3.2, -5.35]}>
+        <Box args={[1.8, 1.4, 0.1]}>
+          <meshStandardMaterial color="#1a1a1a" />
+        </Box>
+        <Box args={[1.6, 1.2, 0.05]} position={[0, 0, 0.06]}>
+          <meshStandardMaterial color="#111111" />
+        </Box>
+        <Text position={[0, 0.35, 0.09]} fontSize={0.08} color={BCP_ORANGE}>
+          TURNO ACTUAL
+        </Text>
+        <Text position={[0, 0, 0.09]} fontSize={0.25} color="#00ff00">
+          A-015
+        </Text>
+        <Text position={[0, -0.35, 0.09]} fontSize={0.06} color="#888888">
+          Ventanilla 2
+        </Text>
+      </group>
+
+      {/* ===== CAJEROS ATM ===== */}
+      <group position={[-6.5, 0, 0]}>
+        <Box args={[0.8, 1.8, 0.6]} position={[0, 0.9, 0]}>
+          <meshStandardMaterial color={BCP_BLUE} />
+        </Box>
+        <Box args={[0.5, 0.4, 0.05]} position={[0, 1.3, 0.33]}>
+          <meshStandardMaterial color="#111111" />
+        </Box>
+        <Box args={[0.45, 0.35, 0.02]} position={[0, 1.3, 0.35]}>
+          <meshStandardMaterial color="#0066cc" emissive="#0066cc" emissiveIntensity={0.3} />
+        </Box>
+        <Text position={[0, 1.65, 0.31]} fontSize={0.06} color="#ffffff">
+          ATM
+        </Text>
+        <Box args={[0.3, 0.05, 0.08]} position={[0, 0.9, 0.35]}>
+          <meshStandardMaterial color="#333333" />
         </Box>
       </group>
 
-      {/* Planta decorativa */}
-      <group position={[3, 0, -3]}>
-        <Cylinder args={[0.2, 0.25, 0.5, 16]} position={[0, 0.25, 0]}>
-          <meshStandardMaterial color="#5d4037" />
+      {/* ===== CUERDA DE ESPERA ===== */}
+      <group position={[0, 0, 1]}>
+        {[-2, 2].map((x, i) => (
+          <group key={`post-${i}`} position={[x, 0, 0]}>
+            <Cylinder args={[0.04, 0.06, 1, 16]} position={[0, 0.5, 0]}>
+              <meshStandardMaterial color="#c0c0c0" metalness={0.9} roughness={0.1} />
+            </Cylinder>
+            <mesh position={[0, 1.02, 0]}>
+              <sphereGeometry args={[0.06, 16, 16]} />
+              <meshStandardMaterial color="#c0c0c0" metalness={0.9} roughness={0.1} />
+            </mesh>
+          </group>
+        ))}
+        <Cylinder args={[0.015, 0.015, 4, 8]} position={[0, 0.9, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <meshStandardMaterial color={BCP_BLUE} />
         </Cylinder>
-        <mesh position={[0, 0.7, 0]}>
-          <sphereGeometry args={[0.4, 16, 16]} />
-          <meshStandardMaterial color="#2e7d32" />
-        </mesh>
       </group>
 
-      {/* Cuadro en la pared */}
-      <group position={[0, 2.5, -3.95]}>
-        <Box args={[1.5, 1, 0.05]}>
-          <meshStandardMaterial color="#3e2723" />
+      {/* ===== SEÑALIZACIÓN BCP ===== */}
+      <group position={[3.5, 0, -1]}>
+        <Cylinder args={[0.03, 0.03, 1.3, 8]} position={[0, 0.65, 0]}>
+          <meshStandardMaterial color="#666666" />
+        </Cylinder>
+        <Box args={[0.7, 0.45, 0.05]} position={[0, 1.4, 0]}>
+          <meshStandardMaterial color={BCP_BLUE} />
         </Box>
-        <Box args={[1.3, 0.8, 0.02]} position={[0, 0, 0.04]}>
-          <meshStandardMaterial color="#1565c0" />
+        <Text position={[0, 1.48, 0.03]} fontSize={0.07} color="#ffffff">
+          Plataforma
+        </Text>
+        <Text position={[0, 1.32, 0.03]} fontSize={0.05} color={BCP_ORANGE}>
+          Atención al Cliente
+        </Text>
+      </group>
+
+      {/* ===== DISPENSER DE TICKETS ===== */}
+      <group position={[-3.5, 0, 1.5]}>
+        <Box args={[0.4, 1.2, 0.3]} position={[0, 0.6, 0]}>
+          <meshStandardMaterial color={BCP_BLUE} />
         </Box>
-        <Text position={[0, 0, 0.06]} fontSize={0.1} color="#ffffff">
-          💰 FINANZAS
+        <Box args={[0.25, 0.2, 0.05]} position={[0, 1, 0.18]}>
+          <meshStandardMaterial color="#111111" />
+        </Box>
+        <Text position={[0, 1.3, 0.16]} fontSize={0.04} color="#ffffff">
+          RETIRE SU
+        </Text>
+        <Text position={[0, 1.22, 0.16]} fontSize={0.04} color={BCP_ORANGE}>
+          TICKET
         </Text>
       </group>
     </group>
@@ -443,10 +623,10 @@ function MoneyDisplay({ money, savings }: { money: number; savings: number }) {
         Tu Dinero
       </Text>
       <Text position={[0, -0.02, 0.02]} fontSize={0.045} color="#4CAF50">
-        {`💵 $${money}`}
+        {`💵 S/${money}`}
       </Text>
       <Text position={[0, -0.14, 0.02]} fontSize={0.045} color="#2196F3">
-        {`🏦 $${savings}`}
+        {`🏦 S/${savings}`}
       </Text>
     </group>
   )
@@ -571,13 +751,24 @@ function FinanceScene() {
 
   return (
     <group>
-      {/* Iluminación */}
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 8, 5]} intensity={0.6} castShadow />
-      <pointLight position={[-2, 3, 0]} intensity={0.4} color="#fff5e6" />
+      {/* Iluminación profesional de banco */}
+      <ambientLight intensity={0.5} />
+      <directionalLight position={[0, 10, 5]} intensity={0.7} castShadow />
+      <pointLight position={[-4, 4, -2]} intensity={0.4} color="#fff8e1" />
+      <pointLight position={[4, 4, -2]} intensity={0.4} color="#fff8e1" />
+      <pointLight position={[0, 5, 0]} intensity={0.3} color="#ffffff" />
+      {/* Luz de acento en el mostrador */}
+      <spotLight
+        position={[0, 4, -1]}
+        angle={0.5}
+        penumbra={0.5}
+        intensity={0.6}
+        color="#fff5e6"
+        castShadow
+      />
 
-      {/* Oficina */}
-      <Office />
+      {/* Banco */}
+      <Bank />
 
       {/* Asesor */}
       <Advisor
@@ -628,21 +819,25 @@ function FinanceScene() {
         </group>
       )}
 
-      {/* Burbuja de diálogo */}
+      {/* Burbuja de diálogo - Se oculta cuando aparecen las opciones */}
       <SpeechBubble
         text={currentText}
-        position={[-1, 2.1, -1.5]}
-        isVisible={currentText !== '' && gameState.phase !== 'waiting' && gameState.phase !== 'end'}
+        position={[-1.2, 2.4, -2]}
+        isVisible={currentText !== '' && gameState.phase !== 'waiting' && gameState.phase !== 'end' && !showChoices}
         isNarration={isNarration}
       />
 
-      {/* Opciones de elección */}
+      {/* Opciones de elección - Posicionadas más abajo y centradas */}
       {showChoices && (
-        <group position={[0, 1.4, -2]}>
+        <group position={[0, 1.6, -1.8]}>
+          {/* Título de la pregunta */}
+          <Text position={[0, 0.9, 0]} fontSize={0.09} color="#FF7800">
+            ¿Qué harás con tu sueldo?
+          </Text>
           <ChoiceButton
-            position={[0, 0.5, 0]}
+            position={[0, 0.45, 0]}
             text="💸 Gastar casi todo"
-            description="$900 para mí, $100 de ahorro"
+            description="S/900 para mí, S/100 de ahorro"
             color="#c62828"
             onClick={() => handleChoice('gastar')}
             delay={0}
@@ -650,15 +845,15 @@ function FinanceScene() {
           <ChoiceButton
             position={[0, 0, 0]}
             text="⚖️ Mitad y mitad"
-            description="$500 para mí, $500 de ahorro"
-            color="#1565C0"
+            description="S/500 para mí, S/500 de ahorro"
+            color="#0066cc"
             onClick={() => handleChoice('equilibrio')}
             delay={300}
           />
           <ChoiceButton
-            position={[0, -0.5, 0]}
+            position={[0, -0.45, 0]}
             text="🏦 Ahorrar la mayoría"
-            description="$200 para mí, $800 de ahorro"
+            description="S/200 para mí, S/800 de ahorro"
             color="#2E7D32"
             onClick={() => handleChoice('ahorrar')}
             delay={600}
@@ -679,7 +874,7 @@ function FinanceScene() {
             {`Tu decisión: ${gameState.choice === 'gastar' ? 'Gastador' : gameState.choice === 'equilibrio' ? 'Equilibrado' : 'Ahorrador'}`}
           </Text>
           <Text position={[0, 0.05, 0.03]} fontSize={0.055} color="#4CAF50">
-            {`💵 Efectivo: $${gameState.money}  |  🏦 Ahorros: $${gameState.savings}`}
+            {`💵 Efectivo: S/${gameState.money}  |  🏦 Ahorros: S/${gameState.savings}`}
           </Text>
           <Text position={[0, -0.15, 0.03]} fontSize={0.05} color="#aaaaaa" maxWidth={2.5} textAlign="center">
             Recuerda: "Págate a ti mismo primero"
