@@ -1,73 +1,44 @@
-# React + TypeScript + Vite
+# Finanzas VR
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A WebXR financial literacy demo built with React Three Fiber and `@react-three/xr`. Put on a headset, stand inside a virtual bank, and walk up to an advisor who guides you through a short dialog about saving, spending, and basic money decisions.
 
-Currently, two official plugins are available:
+**Live demo:** https://finanzas.victorgalvez.dev (open on a WebXR-capable headset)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Preview
 
-## React Compiler
+![Finanzas VR preview](https://github.com/victorgalvez56/demo-vr/releases/download/v0.1.0/preview.gif)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Full-quality MP4: [preview.mp4](https://finanzas.victorgalvez.dev/preview.mp4)
 
-## Expanding the ESLint configuration
+## Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React 19 + TypeScript
+- Three.js via `@react-three/fiber`
+- WebXR via `@react-three/xr`
+- `drei` for 3D UI primitives (`Text`, `RoundedBox`, `Cylinder`)
+- Zustand for game state
+- Vite + `@vitejs/plugin-basic-ssl` (WebXR requires HTTPS even in dev)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## What's in it
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- Room-scale VR scene with thumbstick locomotion (left stick moves, right stick as fallback lateral control)
+- Dialog-driven advisor NPC with phases: `waiting → talking → choice → response → lesson → end`
+- 3D UI panels rendered inside the headset from `drei` primitives
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Run locally
+
+```bash
+npm install
+npm run dev           # https://localhost:5173 (self-signed cert)
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL on a Quest / WebXR-capable headset browser and click **Enter VR**.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Render the preview video
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run remotion:studio   # interactive preview
+npm run remotion:render   # writes public/preview.mp4
 ```
+
+The composition is in `remotion/FinanzasVRVideo.tsx` and uses `@remotion/three` to recreate the bank scene programmatically.
