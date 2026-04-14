@@ -1,11 +1,67 @@
 import { useState, useEffect, useRef } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { XR, createXRStore, XROrigin } from '@react-three/xr'
+import { XR, createXRStore, XROrigin, useXRInputSourceState } from '@react-three/xr'
 import { Text, RoundedBox, Box, Cylinder } from '@react-three/drei'
 import * as THREE from 'three'
 import './App.css'
 
 const xrStore = createXRStore()
+
+// ============== COMPONENTE: MOVIMIENTO VR ==============
+function VRMovement({
+  playerPosition,
+  setPlayerPosition
+}: {
+  playerPosition: [number, number, number]
+  setPlayerPosition: (pos: [number, number, number]) => void
+}) {
+  const leftController = useXRInputSourceState('controller', 'left')
+  const rightController = useXRInputSourceState('controller', 'right')
+
+  useFrame((_, delta) => {
+    // Usar thumbstick izquierdo para moverse
+    const leftThumbstick = leftController?.gamepad?.['xr-standard-thumbstick']
+    // Usar thumbstick derecho para rotar (opcional)
+    const rightThumbstick = rightController?.gamepad?.['xr-standard-thumbstick']
+
+    if (leftThumbstick) {
+      const x = leftThumbstick.xAxis || 0
+      const z = leftThumbstick.yAxis || 0
+
+      // Solo mover si hay input significativo
+      if (Math.abs(x) > 0.1 || Math.abs(z) > 0.1) {
+        const speed = 2 * delta
+        const newX = playerPosition[0] + x * speed
+        const newZ = playerPosition[2] + z * speed
+
+        // Limitar movimiento dentro del banco
+        const clampedX = Math.max(-6, Math.min(6, newX))
+        const clampedZ = Math.max(-4, Math.min(4, newZ))
+
+        setPlayerPosition([clampedX, playerPosition[1], clampedZ])
+      }
+    }
+
+    // Thumbstick derecho - movimiento lateral alternativo
+    if (rightThumbstick) {
+      const x = rightThumbstick.xAxis || 0
+      const z = rightThumbstick.yAxis || 0
+
+      if (Math.abs(x) > 0.1 || Math.abs(z) > 0.1) {
+        const speed = 2 * delta
+        const newX = playerPosition[0] + x * speed
+        const newZ = playerPosition[2] + z * speed
+
+        const clampedX = Math.max(-6, Math.min(6, newX))
+        const clampedZ = Math.max(-4, Math.min(4, newZ))
+
+        setPlayerPosition([clampedX, playerPosition[1], clampedZ])
+      }
+    }
+  })
+
+  return null
+}
 
 // ============== TIPOS ==============
 interface DialogLine {
@@ -87,10 +143,15 @@ function Advisor({
   const groupRef = useRef<THREE.Group>(null)
   const [mouthOpen, setMouthOpen] = useState(false)
 
+  // Colores BCP
+  const SKIN_COLOR = '#D4A574'
+  const HAIR_COLOR = '#1a1a1a'
+  const SUIT_COLOR = '#002A8D' // Azul BCP
+  const TIE_COLOR = '#FF7800' // Naranja BCP
+
   // Animación de entrada
   useFrame((_, delta) => {
     if (!groupRef.current) return
-
     const targetX = isVisible ? position[0] : position[0] - 3
     groupRef.current.position.x = THREE.MathUtils.lerp(
       groupRef.current.position.x,
@@ -105,86 +166,203 @@ function Advisor({
       setMouthOpen(false)
       return
     }
-
     const interval = setInterval(() => {
       setMouthOpen(prev => !prev)
     }, 150)
-
     return () => clearInterval(interval)
   }, [isTalking])
 
   return (
     <group ref={groupRef} position={[position[0] - 3, position[1], position[2]]}>
-      {/* Cuerpo - Traje */}
-      <Cylinder args={[0.25, 0.35, 1, 16]} position={[0, 0.5, 0]}>
-        <meshStandardMaterial color="#1a237e" />
+      {/* ========== PIERNAS ========== */}
+      <Cylinder args={[0.07, 0.06, 0.7, 10]} position={[-0.1, 0.35, 0]}>
+        <meshStandardMaterial color="#1a1a2e" />
+      </Cylinder>
+      <Cylinder args={[0.07, 0.06, 0.7, 10]} position={[0.1, 0.35, 0]}>
+        <meshStandardMaterial color="#1a1a2e" />
       </Cylinder>
 
-      {/* Camisa */}
-      <Box args={[0.15, 0.3, 0.1]} position={[0, 0.85, 0.15]}>
+      {/* Zapatos */}
+      <Box args={[0.1, 0.05, 0.16]} position={[-0.1, -0.02, 0.03]}>
+        <meshStandardMaterial color="#1a1a1a" />
+      </Box>
+      <Box args={[0.1, 0.05, 0.16]} position={[0.1, -0.02, 0.03]}>
+        <meshStandardMaterial color="#1a1a1a" />
+      </Box>
+
+      {/* ========== TORSO (Saco azul BCP) ========== */}
+      <Box args={[0.4, 0.55, 0.22]} position={[0, 0.95, 0]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Box>
+
+      {/* Solapas del saco */}
+      <Box args={[0.1, 0.2, 0.03]} position={[-0.1, 1.05, 0.11]} rotation={[0, 0, 0.15]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Box>
+      <Box args={[0.1, 0.2, 0.03]} position={[0.1, 1.05, 0.11]} rotation={[0, 0, -0.15]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Box>
+
+      {/* Camisa visible */}
+      <Box args={[0.1, 0.3, 0.02]} position={[0, 0.95, 0.11]}>
         <meshStandardMaterial color="#ffffff" />
       </Box>
 
-      {/* Corbata */}
-      <Box args={[0.08, 0.35, 0.05]} position={[0, 0.75, 0.18]}>
-        <meshStandardMaterial color="#c62828" />
+      {/* Corbata naranja BCP */}
+      <Box args={[0.06, 0.35, 0.02]} position={[0, 0.9, 0.12]}>
+        <meshStandardMaterial color={TIE_COLOR} />
+      </Box>
+      {/* Nudo de corbata */}
+      <Box args={[0.07, 0.05, 0.02]} position={[0, 1.12, 0.12]}>
+        <meshStandardMaterial color={TIE_COLOR} />
       </Box>
 
-      {/* Cabeza */}
-      <mesh position={[0, 1.25, 0]}>
-        <sphereGeometry args={[0.2, 32, 32]} />
-        <meshStandardMaterial color="#e8beac" />
-      </mesh>
+      {/* Fotocheck BCP */}
+      <group position={[0.15, 1.05, 0.12]}>
+        <Box args={[0.08, 0.1, 0.01]}>
+          <meshStandardMaterial color="#ffffff" />
+        </Box>
+        <Text position={[0, 0.015, 0.01]} fontSize={0.02} color="#002A8D">
+          BCP
+        </Text>
+        <Text position={[0, -0.02, 0.01]} fontSize={0.012} color="#333333">
+          Carlos
+        </Text>
+      </group>
 
-      {/* Pelo */}
-      <mesh position={[0, 1.38, -0.02]}>
-        <sphereGeometry args={[0.18, 32, 32, 0, Math.PI * 2, 0, Math.PI / 2]} />
-        <meshStandardMaterial color="#3e2723" />
-      </mesh>
-
-      {/* Ojos */}
-      <mesh position={[-0.07, 1.28, 0.15]}>
-        <sphereGeometry args={[0.03, 16, 16]} />
+      {/* Botones */}
+      <mesh position={[0, 0.85, 0.12]}>
+        <sphereGeometry args={[0.015, 8, 8]} />
         <meshStandardMaterial color="#1a1a1a" />
       </mesh>
-      <mesh position={[0.07, 1.28, 0.15]}>
-        <sphereGeometry args={[0.03, 16, 16]} />
+      <mesh position={[0, 0.75, 0.12]}>
+        <sphereGeometry args={[0.015, 8, 8]} />
         <meshStandardMaterial color="#1a1a1a" />
       </mesh>
 
-      {/* Boca (animada) */}
-      <mesh position={[0, 1.15, 0.17]} scale={[1, mouthOpen ? 1.5 : 0.5, 1]}>
-        <boxGeometry args={[0.08, 0.03, 0.02]} />
-        <meshStandardMaterial color="#8d6e63" />
-      </mesh>
-
-      {/* Brazos */}
-      <Cylinder args={[0.06, 0.06, 0.5, 8]} position={[-0.35, 0.6, 0]} rotation={[0, 0, 0.3]}>
-        <meshStandardMaterial color="#1a237e" />
-      </Cylinder>
-      <Cylinder args={[0.06, 0.06, 0.5, 8]} position={[0.35, 0.6, 0]} rotation={[0, 0, -0.3]}>
-        <meshStandardMaterial color="#1a237e" />
+      {/* ========== CUELLO ========== */}
+      <Cylinder args={[0.07, 0.08, 0.1, 10]} position={[0, 1.28, 0]}>
+        <meshStandardMaterial color={SKIN_COLOR} />
       </Cylinder>
 
-      {/* Manos */}
-      <mesh position={[-0.45, 0.35, 0]}>
-        <sphereGeometry args={[0.06, 16, 16]} />
-        <meshStandardMaterial color="#e8beac" />
-      </mesh>
-      <mesh position={[0.45, 0.35, 0]}>
-        <sphereGeometry args={[0.06, 16, 16]} />
-        <meshStandardMaterial color="#e8beac" />
+      {/* ========== CABEZA ========== */}
+      <group position={[0, 1.5, 0]}>
+        {/* Cabeza base */}
+        <mesh>
+          <sphereGeometry args={[0.16, 24, 24]} />
+          <meshStandardMaterial color={SKIN_COLOR} />
+        </mesh>
+
+        {/* Pelo */}
+        <mesh position={[0, 0.06, -0.02]}>
+          <sphereGeometry args={[0.15, 20, 20, 0, Math.PI * 2, 0, Math.PI / 2.5]} />
+          <meshStandardMaterial color={HAIR_COLOR} />
+        </mesh>
+
+        {/* Lados del pelo */}
+        <Box args={[0.12, 0.06, 0.08]} position={[-0.08, 0.02, -0.04]}>
+          <meshStandardMaterial color={HAIR_COLOR} />
+        </Box>
+        <Box args={[0.12, 0.06, 0.08]} position={[0.08, 0.02, -0.04]}>
+          <meshStandardMaterial color={HAIR_COLOR} />
+        </Box>
+
+        {/* Orejas */}
+        <mesh position={[-0.15, 0, 0]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color={SKIN_COLOR} />
+        </mesh>
+        <mesh position={[0.15, 0, 0]}>
+          <sphereGeometry args={[0.03, 8, 8]} />
+          <meshStandardMaterial color={SKIN_COLOR} />
+        </mesh>
+
+        {/* Cejas */}
+        <Box args={[0.035, 0.01, 0.01]} position={[-0.045, 0.05, 0.12]} rotation={[0, 0, 0.1]}>
+          <meshStandardMaterial color={HAIR_COLOR} />
+        </Box>
+        <Box args={[0.035, 0.01, 0.01]} position={[0.045, 0.05, 0.12]} rotation={[0, 0, -0.1]}>
+          <meshStandardMaterial color={HAIR_COLOR} />
+        </Box>
+
+        {/* Ojos */}
+        {/* Ojo izquierdo */}
+        <mesh position={[-0.045, 0.02, 0.12]}>
+          <sphereGeometry args={[0.025, 12, 12]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[-0.045, 0.02, 0.14]}>
+          <sphereGeometry args={[0.012, 8, 8]} />
+          <meshStandardMaterial color="#4a3728" />
+        </mesh>
+        <mesh position={[-0.045, 0.02, 0.145]}>
+          <sphereGeometry args={[0.006, 6, 6]} />
+          <meshStandardMaterial color="#0a0a0a" />
+        </mesh>
+
+        {/* Ojo derecho */}
+        <mesh position={[0.045, 0.02, 0.12]}>
+          <sphereGeometry args={[0.025, 12, 12]} />
+          <meshStandardMaterial color="#ffffff" />
+        </mesh>
+        <mesh position={[0.045, 0.02, 0.14]}>
+          <sphereGeometry args={[0.012, 8, 8]} />
+          <meshStandardMaterial color="#4a3728" />
+        </mesh>
+        <mesh position={[0.045, 0.02, 0.145]}>
+          <sphereGeometry args={[0.006, 6, 6]} />
+          <meshStandardMaterial color="#0a0a0a" />
+        </mesh>
+
+        {/* Nariz */}
+        <mesh position={[0, -0.02, 0.14]} scale={[0.6, 0.8, 0.8]}>
+          <sphereGeometry args={[0.025, 10, 10]} />
+          <meshStandardMaterial color={SKIN_COLOR} />
+        </mesh>
+
+        {/* Boca (animada) */}
+        <mesh position={[0, -0.08, 0.12]} scale={[1, mouthOpen ? 1.5 : 0.5, 1]}>
+          <boxGeometry args={[0.05, 0.02, 0.02]} />
+          <meshStandardMaterial color="#a06050" />
+        </mesh>
+      </group>
+
+      {/* ========== BRAZOS ========== */}
+      {/* Brazo izquierdo */}
+      <Cylinder args={[0.05, 0.045, 0.35, 8]} position={[-0.26, 1.0, 0]} rotation={[0, 0, 0.15]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Cylinder>
+      <Cylinder args={[0.045, 0.04, 0.3, 8]} position={[-0.32, 0.65, 0.05]} rotation={[0.2, 0, 0.1]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Cylinder>
+      {/* Mano izquierda */}
+      <mesh position={[-0.35, 0.48, 0.1]}>
+        <sphereGeometry args={[0.04, 10, 10]} />
+        <meshStandardMaterial color={SKIN_COLOR} />
       </mesh>
 
-      {/* Nombre flotante */}
-      <Text
-        position={[0, 1.65, 0]}
-        fontSize={0.08}
-        color="#4CAF50"
-        anchorX="center"
-      >
-        Carlos - Asesor Financiero
-      </Text>
+      {/* Brazo derecho */}
+      <Cylinder args={[0.05, 0.045, 0.35, 8]} position={[0.26, 1.0, 0]} rotation={[0, 0, -0.15]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Cylinder>
+      <Cylinder args={[0.045, 0.04, 0.3, 8]} position={[0.32, 0.65, 0.05]} rotation={[0.2, 0, -0.1]}>
+        <meshStandardMaterial color={SUIT_COLOR} />
+      </Cylinder>
+      {/* Mano derecha */}
+      <mesh position={[0.35, 0.48, 0.1]}>
+        <sphereGeometry args={[0.04, 10, 10]} />
+        <meshStandardMaterial color={SKIN_COLOR} />
+      </mesh>
+
+      {/* ========== NOMBRE FLOTANTE ========== */}
+      <group position={[0, 1.85, 0]}>
+        <RoundedBox args={[0.9, 0.14, 0.02]} radius={0.02}>
+          <meshStandardMaterial color="#002A8D" />
+        </RoundedBox>
+        <Text position={[0, 0, 0.015]} fontSize={0.05} color="#ffffff" anchorX="center">
+          Carlos - Asesor BCP
+        </Text>
+      </group>
     </group>
   )
 }
@@ -615,7 +793,7 @@ function Bank() {
 // ============== COMPONENTE: HUD ==============
 function MoneyDisplay({ money, savings }: { money: number; savings: number }) {
   return (
-    <group position={[1.8, 2.2, -2]}>
+    <group position={[2, 2.5, -2.5]}>
       <RoundedBox args={[0.9, 0.5, 0.03]} radius={0.03}>
         <meshStandardMaterial color="#1a1a2e" transparent opacity={0.9} />
       </RoundedBox>
@@ -770,9 +948,9 @@ function FinanceScene() {
       {/* Banco */}
       <Bank />
 
-      {/* Asesor */}
+      {/* Asesor - posicionado más a la izquierda para no obstruir */}
       <Advisor
-        position={[-1, 0, -1.5]}
+        position={[-1.5, 0, -2]}
         isTalking={isTalking}
         isVisible={advisorVisible}
       />
@@ -822,20 +1000,20 @@ function FinanceScene() {
       {/* Burbuja de diálogo - Se oculta cuando aparecen las opciones */}
       <SpeechBubble
         text={currentText}
-        position={[-1.2, 2.4, -2]}
+        position={[-1.5, 2.2, -2.5]}
         isVisible={currentText !== '' && gameState.phase !== 'waiting' && gameState.phase !== 'end' && !showChoices}
         isNarration={isNarration}
       />
 
-      {/* Opciones de elección - Posicionadas más abajo y centradas */}
+      {/* Opciones de elección - Centradas frente al usuario */}
       {showChoices && (
-        <group position={[0, 1.6, -1.8]}>
+        <group position={[0.5, 1.4, -2]}>
           {/* Título de la pregunta */}
-          <Text position={[0, 0.9, 0]} fontSize={0.09} color="#FF7800">
+          <Text position={[0, 0.8, 0]} fontSize={0.1} color="#FF7800">
             ¿Qué harás con tu sueldo?
           </Text>
           <ChoiceButton
-            position={[0, 0.45, 0]}
+            position={[0, 0.35, 0]}
             text="💸 Gastar casi todo"
             description="S/900 para mí, S/100 de ahorro"
             color="#c62828"
@@ -843,7 +1021,7 @@ function FinanceScene() {
             delay={0}
           />
           <ChoiceButton
-            position={[0, 0, 0]}
+            position={[0, -0.15, 0]}
             text="⚖️ Mitad y mitad"
             description="S/500 para mí, S/500 de ahorro"
             color="#0066cc"
@@ -851,7 +1029,7 @@ function FinanceScene() {
             delay={300}
           />
           <ChoiceButton
-            position={[0, -0.45, 0]}
+            position={[0, -0.65, 0]}
             text="🏦 Ahorrar la mayoría"
             description="S/200 para mí, S/800 de ahorro"
             color="#2E7D32"
@@ -898,6 +1076,19 @@ function FinanceScene() {
   )
 }
 
+// ============== COMPONENTE: ESCENA CON MOVIMIENTO ==============
+function XRScene() {
+  const [playerPosition, setPlayerPosition] = useState<[number, number, number]>([0, 0, 1])
+
+  return (
+    <>
+      <XROrigin position={playerPosition} />
+      <VRMovement playerPosition={playerPosition} setPlayerPosition={setPlayerPosition} />
+      <FinanceScene />
+    </>
+  )
+}
+
 // ============== APP ==============
 function App() {
   return (
@@ -907,12 +1098,11 @@ function App() {
       </button>
 
       <Canvas
-        camera={{ position: [0, 1.6, 2], fov: 70 }}
+        camera={{ position: [0, 1.6, 1], fov: 75 }}
         shadows
       >
         <XR store={xrStore}>
-          <XROrigin position={[0, 0, 0]} />
-          <FinanceScene />
+          <XRScene />
         </XR>
       </Canvas>
     </div>
